@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ψηφιακός Χάρτης – Αγιάσος, Ιωάννινα, Μέτσοβο 2027</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{--ink:#203047;--accent:#176b66;--paper:#f5f7f6;--line:#dce4e1}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}
+header{padding:22px clamp(16px,4vw,42px);background:#173c4a;color:white}
+header h1{font-size:clamp(1.35rem,3vw,2rem);margin:0 0 6px}header p{margin:0;color:#dcebea}
+main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(310px,.75fr);gap:16px;padding:16px;max-width:1500px;margin:auto}
+#map{height:calc(100vh - 190px);min-height:520px;border-radius:14px;border:1px solid var(--line);z-index:1}
+.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 4px 18px #173c4a0b}
+.panel h2{margin:0 0 10px;font-size:1.2rem}.intro{color:#536477;font-size:.95rem;line-height:1.55}
+.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.tabs button{border:1px solid #cbd9d5;background:#f7faf9;color:#25434a;border-radius:999px;padding:8px 11px;cursor:pointer;font:inherit;font-size:.86rem}
+.tabs button.active,.tabs button:hover{background:var(--accent);color:white;border-color:var(--accent)}
+.detail h3{margin:8px 0;font-size:1.15rem}.detail p{line-height:1.55;color:#435568}.detail h4{margin:18px 0 7px;color:var(--accent)}
+.detail li{margin:7px 0;line-height:1.45}.meta{font-size:.82rem;color:#71808d}
+.notice{font-size:.82rem;background:#f0f6f4;border-left:3px solid var(--accent);padding:10px 12px;margin-top:14px;line-height:1.45}
+footer{text-align:center;padding:4px 16px 20px;color:#687985;font-size:.8rem}
+@media(max-width:850px){main{grid-template-columns:1fr}#map{height:52vh;min-height:360px}.panel{order:2}}
+</style>
+</head>
+<body>
+<header>
+<h1>Διαδραστικός Ψηφιακός Χάρτης</h1>
+<p>Αγιάσος Λέσβου · Ιωάννινα · Μέτσοβο | Εκπαιδευτική περιήγηση 2027</p>
+</header>
+<main>
+<section><div id="map" aria-label="Διαδραστικός χάρτης των εκπαιδευτικών σταθμών"></div></section>
+<aside class="panel">
+<h2>Οι σταθμοί της διαδρομής</h2>
+<p class="intro">Επίλεξε έναν σταθμό από τις καρτέλες ή πάτησε το αντίστοιχο σημείο στον χάρτη για να δεις σύντομη παρουσίαση και ερευνητικά ερωτήματα.</p>
+<div class="tabs" id="tabs"></div>
+<article class="detail" id="detail" aria-live="polite"></article>
+<div class="notice"><strong>Σημείωση διαδρομής:</strong> Η γραμμή στον χάρτη είναι ενδεικτική σύνδεση των σταθμών και όχι πλοηγημένη οδική/ακτοπλοϊκή διαδρομή. Η μετάβαση από τη Λέσβο στην ηπειρωτική Ελλάδα απαιτεί ξεχωριστό σχεδιασμό μεταφοράς. Για ακριβείς χρόνους και δρομολόγια χρειάζεται έλεγχος των μεταφορέων.</div>
+</aside>
+</main>
+<footer>Εκπαιδευτικό υλικό · Οι χάρτες και τα δεδομένα υποβάθρου παρέχονται από το OpenStreetMap.</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const stops = [
+ {name:"Αγιάσος Λέσβου",short:"Αγιάσος",coords:[39.0838,26.3718],desc:"Ορεινός παραδοσιακός οικισμός της Λέσβου, γνωστός για την ιδιαίτερη αρχιτεκτονική, την ξυλογλυπτική, την κεραμική και τη μακραίωνη θρησκευτική και πολιτιστική του παράδοση.",questions:["Ποια στοιχεία της αρχιτεκτονικής μαρτυρούν την ιστορία και τον τρόπο ζωής των κατοίκων;","Πώς συνδέονται τα τοπικά εργαστήρια και οι τέχνες με την οικονομία και την ταυτότητα του τόπου;","Με ποιους τρόπους μπορεί να διατηρηθεί η πολιτιστική κληρονομιά ενός ορεινού οικισμού;"]},
+ {name:"Ιστορικό Κέντρο & Κάστρο Ιωαννίνων",short:"Κάστρο Ιωαννίνων",coords:[39.6680,20.8580],desc:"Το ιστορικό κέντρο και το Κάστρο των Ιωαννίνων αποτυπώνουν τη μακραίωνη πολυπολιτισμική ιστορία της πόλης. Στα τείχη και στα μνημεία διακρίνονται ίχνη διαφορετικών ιστορικών περιόδων.",questions:["Ποια είναι η στρατηγική σημασία της θέσης του Κάστρου;","Πώς συνυπάρχουν στον χώρο μνημεία διαφορετικών εποχών και κοινοτήτων;","Τι μας αποκαλύπτει η πολεοδομία για την κοινωνική και οικονομική ζωή της παλιάς πόλης;"]},
+ {name:"Μουσείο Αργυροτεχνίας (ΠΙΟΠ)",short:"Μουσείο Αργυροτεχνίας",coords:[39.6673,20.8572],desc:"Το Μουσείο Αργυροτεχνίας, στο Ιτς Καλέ, παρουσιάζει την ιστορία και τις τεχνικές της αργυροχοΐας στην Ήπειρο, καθώς και τη σημασία της τέχνης αυτής στην κοινωνική και οικονομική ζωή της περιοχής.",questions:["Ποια στάδια περιλαμβάνει η παραδοσιακή κατασκευή ενός ασημένιου αντικειμένου;","Πώς επηρεάζουν τα εργαλεία και τα υλικά το τελικό έργο;","Γιατί η αργυροτεχνία έγινε σημαντικό στοιχείο της πολιτιστικής ταυτότητας των Ιωαννίνων;"]},
+ {name:"Νησάκι Λίμνης Παμβώτιδας",short:"Νησάκι Παμβώτιδας",coords:[39.6768,20.8545],desc:"Το νησάκι της Παμβώτιδας αποτελεί ξεχωριστό φυσικό και πολιτιστικό τοπίο. Ο παραδοσιακός οικισμός, τα μοναστήρια και η σχέση των κατοίκων με τη λίμνη συνθέτουν ένα ιδιαίτερο περιβάλλον.",questions:["Πώς επηρέασε η λίμνη τις ασχολίες και τις μετακινήσεις των κατοίκων;","Ποια στοιχεία του φυσικού περιβάλλοντος χρειάζονται προστασία;","Πώς μπορεί να συνδυαστεί η επισκεψιμότητα με τη διατήρηση του τοπίου και της τοπικής ζωής;"]},
+ {name:"Μουσείο Ελληνικής Ιστορίας Παύλου Βρέλλη",short:"Μουσείο Βρέλλη",coords:[39.5638,20.8278],desc:"Το μουσείο κέρινων ομοιωμάτων του Παύλου Βρέλλη παρουσιάζει μορφές και στιγμές της ελληνικής ιστορίας μέσα από τρισδιάστατες αναπαραστάσεις και σκηνογραφημένα ιστορικά περιβάλλοντα.",questions:["Ποια πλεονεκτήματα έχει η αναπαράσταση ιστορικών γεγονότων με κέρινα ομοιώματα;","Πώς επηρεάζουν τα σκηνικά και οι λεπτομέρειες τον τρόπο με τον οποίο αντιλαμβανόμαστε το παρελθόν;","Ποιες πηγές χρειάζεται να αξιοποιήσει ένας δημιουργός για να αποδώσει ιστορικά πρόσωπα και γεγονότα;"]},
+ {name:"Μέτσοβο",short:"Μέτσοβο",coords:[39.7697,21.1825],desc:"Το Μέτσοβο είναι ορεινός οικισμός της Πίνδου με ισχυρή βλαχόφωνη παράδοση, χαρακτηριστική αρχιτεκτονική, τοπική γαστρονομία και σημαντική ιστορία στην τέχνη και την ευεργεσία.",questions:["Πώς προσαρμόζεται η παραδοσιακή αρχιτεκτονική στο ορεινό κλίμα;","Ποια στοιχεία της βλάχικης παράδοσης διατηρούνται στη γλώσσα, στη μουσική και στα έθιμα;","Πώς επηρεάζει ο τουρισμός την τοπική οικονομία και τη διατήρηση της πολιτιστικής ταυτότητας;"]}
+];
+const map=L.map('map').setView([39.45,23.2],7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+const line=L.polyline(stops.map(s=>s.coords),{color:'#176b66',weight:3,dashArray:'7 8',opacity:.85}).addTo(map);
+const markers=[];
+stops.forEach((s,i)=>{
+ const marker=L.marker(s.coords).addTo(map).bindTooltip((i+1)+'. '+s.name);
+ marker.on('click',()=>selectStop(i));markers.push(marker);
+});
+map.fitBounds(line.getBounds().pad(.16));
+const tabs=document.getElementById('tabs'), detail=document.getElementById('detail');
+function selectStop(i){
+ const s=stops[i];
+ [...tabs.children].forEach((b,j)=>b.classList.toggle('active',j===i));
+ detail.innerHTML=`<div class="meta">ΣΤΑΘΜΟΣ ${i+1} ΑΠΟ ${stops.length}</div><h3>${s.name}</h3><p>${s.desc}</p><h4>Ερευνητικά ερωτήματα</h4><ol>${s.questions.map(q=>`<li>${q}</li>`).join('')}</ol>`;
+ map.flyTo(s.coords, i===0?11:13,{duration:.7});
+}
+stops.forEach((s,i)=>{const b=document.createElement('button');b.textContent=(i+1)+'. '+s.short;b.addEventListener('click',()=>selectStop(i));tabs.appendChild(b)});
+selectStop(0);
+</script>
+</body>
+</html>
